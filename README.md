@@ -45,15 +45,14 @@ sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
 sudo usermod -aG video,render "$USER"
 ```
 
-Copy the example configuration, then set `PLATFORM` and the published demo
-image:
+Copy the example configuration, then set `PLATFORM`. The versioned demo image
+is already configured:
 
 ```bash
 cp .env.example .env
 
 # Edit .env:
 # PLATFORM=mac            # mac, nvidia, or amd
-# DEMO_IMAGE=ghcr.io/OWNER/sst-ai-docops:VERSION
 ```
 
 Download the three model files:

@@ -13,7 +13,7 @@
 #
 # Image source: downloadable releases set DEMO_IMAGE to a versioned seeded
 # registry image. Maintainers can leave it unset to use/build the local seed.
-#   DEMO_IMAGE=REGISTRY/OWNER/sst-answerer:v2
+#   DEMO_IMAGE=ghcr.io/hpc-ai-adv-dev/sst-ai-docops:v0.1.0
 #
 # Copy .env.example to .env and set PLATFORM to change.
 # ---------------------------------------------------------------------------

@@ -270,14 +270,24 @@ RUNTIME_DATA_DIR="$SMOKE_DIR" ./start.sh
 
 Remove the temporary directory after inspection.
 
-Tag and push only after local validation:
+Build and push both release architectures only after local validation:
 
 ```bash
-CONTAINER_RT=podman   # or docker
-RELEASE_IMAGE=ghcr.io/OWNER/sst-ai-docops:VERSION
+RELEASE_IMAGE=ghcr.io/hpc-ai-adv-dev/sst-ai-docops:v0.1.0
 
-$CONTAINER_RT tag open-webui-rag-demo:v2 "$RELEASE_IMAGE"
-$CONTAINER_RT push "$RELEASE_IMAGE"
+podman build --platform linux/arm64 \
+  -f seed/Containerfile \
+  -t "$RELEASE_IMAGE-arm64" seed
+podman build --platform linux/amd64 \
+  -f seed/Containerfile \
+  -t "$RELEASE_IMAGE-amd64" seed
+
+podman manifest create "$RELEASE_IMAGE" \
+  "$RELEASE_IMAGE-arm64" \
+  "$RELEASE_IMAGE-amd64"
+podman manifest push --all \
+  "$RELEASE_IMAGE" \
+  "docker://$RELEASE_IMAGE"
 ```
 
 Publish the immutable image digest with the release.
