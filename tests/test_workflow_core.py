@@ -339,7 +339,7 @@ class ConfidenceGateTests(unittest.TestCase):
         self.assertEqual(message["content"], gate.EXACT_REJECTION)
         self.assertEqual(self.events[0]["tier"], "total_gap")
 
-    def test_answer_without_citation_becomes_exact_rejection(self):
+    def test_answer_without_citation_passes_through_without_sources(self):
         body = _request_body("How does this SST feature work?")
         message = _add_answer(
             body,
@@ -349,8 +349,12 @@ class ConfidenceGateTests(unittest.TestCase):
 
         self.run_outlet(body)
 
-        self.assertEqual(message["content"], gate.EXACT_REJECTION)
-        self.assertEqual(self.events[0]["tier"], "total_gap")
+        self.assertEqual(
+            message["content"],
+            "This confident answer has no citation.",
+        )
+        self.assertEqual(message["sources"], [])
+        self.assertEqual(self.events, [])
 
     def test_unresolved_citation_becomes_exact_rejection(self):
         body = _request_body("How does this SST feature work?")

@@ -3,16 +3,16 @@
 """Classify the answer delivered by SST Answerer from its cited sources.
 
 Open WebUI performs retrieval and generation once. This filter then enforces a
-small, deterministic contract:
+small, deterministic contract for responses that claim SST evidence:
 
 * an answer must cite SST evidence that passed native reranking;
 * an answer labeled source-only must cite relevant source code, even when it
   also cites documentation that provides only partial support;
-* an unsupported or untraceable answer becomes the honest not-found response.
+* the explicit not-found response is preserved without irrelevant sources.
 
-The resulting query and gap events are written for the Gap Tracker. The filter
-does not call a model, search the corpus again, or contain question-specific
-answer rules.
+Uncited replies pass through unchanged and do not create Gap Tracker events.
+The filter does not call a model, search the corpus again, or contain
+question-specific answer rules.
 """
 
 from __future__ import annotations
@@ -92,6 +92,28 @@ def _citation_ids(content: str) -> set[int]:
         for match in re.findall(r"\[(\d+)\]", content)
         if int(match) > 0
     }
+
+
+def _uncited_answer(content: Any) -> str | None:
+    """Return a visible model response that makes no citation claim."""
+    if not isinstance(content, str):
+        return None
+    visible = _normalize_citations(_visible_text(content))
+    if (
+        not visible
+        or visible == EXACT_REJECTION
+        or LEGACY_INSUFFICIENT_TAG in visible
+        or _citation_ids(visible)
+    ):
+        return None
+    return visible
+
+
+def _clear_sources(body: dict, message: dict) -> None:
+    """Remove retrieved context when the visible response cites none of it."""
+    message["sources"] = []
+    if "sources" in body:
+        body["sources"] = []
 
 
 def _source_items(message: dict) -> dict[int, dict[str, Any]]:
@@ -305,6 +327,12 @@ class Filter:
 
         query = _message_text(user_messages[-1].get("content", ""))
         last_message = assistant_messages[-1]
+        uncited_answer = _uncited_answer(last_message.get("content"))
+        if uncited_answer is not None:
+            last_message["content"] = uncited_answer
+            _clear_sources(body, last_message)
+            return body
+
         tier, answer = _classify_answer(
             last_message,
             self.valves.min_cited_score,
@@ -312,6 +340,8 @@ class Filter:
             _prefixes(self.valves.source_prefixes),
         )
         last_message["content"] = answer
+        if tier == "total_gap":
+            _clear_sources(body, last_message)
 
         timestamp = datetime.now(timezone.utc).isoformat()
         interaction_id = uuid.uuid4().hex
