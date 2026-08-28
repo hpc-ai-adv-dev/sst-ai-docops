@@ -77,6 +77,7 @@ if [[ "$MODE" == "all" ]]; then
 echo "Starting LLM on port 8000..."
 start_server "$LLAMA_BIN" \
   --model "$MODELS/Qwen3-14B-Q4_K_M.gguf" \
+  --alias Qwen3-14B-Q4_K_M.gguf \
   --host "${LLAMA_HOST:-127.0.0.1}" \
   --port 8000 \
   --n-gpu-layers -1 \
@@ -89,6 +90,7 @@ fi
 echo "Starting embeddings on port 8001..."
 start_server "$LLAMA_BIN" \
   --model "$MODELS/nomic-embed-text-v1.5.Q8_0.gguf" \
+  --alias nomic-embed-text-v1.5.Q8_0.gguf \
   --host "${LLAMA_HOST:-127.0.0.1}" \
   --port 8001 \
   --n-gpu-layers -1 \
@@ -105,6 +107,7 @@ if [[ "$MODE" == "all" ]]; then
 echo "Starting reranker on port 8002..."
 start_server "$LLAMA_BIN" \
   --model "$MODELS/bge-reranker-v2-m3-Q8_0.gguf" \
+  --alias bge-reranker-v2-m3-Q8_0.gguf \
   --host "${LLAMA_HOST:-127.0.0.1}" \
   --port 8002 \
   --n-gpu-layers -1 \

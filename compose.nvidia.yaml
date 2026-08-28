@@ -21,6 +21,7 @@ services:
       - ./models:/models:ro
     command: >
       -m /models/Qwen3-14B-Q4_K_M.gguf
+      --alias Qwen3-14B-Q4_K_M.gguf
       --ctx-size 8192
       --n-gpu-layers -1
       --log-disable
@@ -41,6 +42,7 @@ services:
       - ./models:/models:ro
     command: >
       -m /models/nomic-embed-text-v1.5.Q8_0.gguf
+      --alias nomic-embed-text-v1.5.Q8_0.gguf
       --ctx-size 8192
       --n-gpu-layers -1
       --embedding
@@ -65,6 +67,7 @@ services:
       - ./models:/models:ro
     command: >
       -m /models/bge-reranker-v2-m3-Q8_0.gguf
+      --alias bge-reranker-v2-m3-Q8_0.gguf
       --ctx-size 8192
       --n-gpu-layers -1
       --reranking
