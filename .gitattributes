@@ -1,0 +1,8 @@
+# Collapse the baked config snapshot in GitHub diffs.
+# These are generated artifacts (vector store chunks, SQLite DBs) —
+# not hand-edited source. Marking them generated hides them under the
+# "Generated files" fold on GitHub and suppresses binary diff noise.
+seed/config-seed/**              linguist-generated=true
+seed/config-seed/vector_db/**    -diff binary
+seed/config-seed/**/*.db         -diff binary
+seed/config-seed/**/*.sqlite3    -diff binary

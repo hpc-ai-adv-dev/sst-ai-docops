@@ -1,0 +1,112 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# AMD overlay – used by start.sh when PLATFORM=amd
+#   podman compose -f compose.yaml -f compose.amd.yaml up -d
+#
+# Prerequisites on the host:
+#   1. ROCm installed:  https://rocm.docs.amd.com/en/latest/deploy/linux/
+#   2. User in video and render groups:
+#        sudo usermod -aG video,render $USER   (then re-login)
+#   3. Verify GPU is visible:  rocminfo | grep 'Marketing Name'
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── LLM (chat / completions) ─────────────────────── internal port 8080 ──
+  llama-llm:
+    image: ghcr.io/ggml-org/llama.cpp@sha256:4cdd8b34a5ca217bfa84ab6a9f31ea79ee56e0837e36cdd2942cb6917e14388d
+    container_name: llama-llm
+    devices:
+      - /dev/kfd                    # ROCm kernel fusion driver
+      - /dev/dri                    # Direct Rendering Infrastructure
+    group_add:
+      - video
+      - render
+    security_opt:
+      - seccomp=unconfined          # required for ROCm HSA runtime
+    volumes:
+      - ./models:/models:ro
+    command: >
+      -m /models/Qwen3-14B-Q4_K_M.gguf
+      --ctx-size 8192
+      --n-gpu-layers -1
+      --log-disable
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 30s
+
+  # ── Embeddings ───────────────────────────────────── internal port 8080 ──
+  llama-embed:
+    image: ghcr.io/ggml-org/llama.cpp@sha256:4cdd8b34a5ca217bfa84ab6a9f31ea79ee56e0837e36cdd2942cb6917e14388d
+    container_name: llama-embed
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - video
+      - render
+    security_opt:
+      - seccomp=unconfined
+    volumes:
+      - ./models:/models:ro
+    command: >
+      -m /models/nomic-embed-text-v1.5.Q8_0.gguf
+      --ctx-size 8192
+      --n-gpu-layers -1
+      --embedding
+      --cache-ram 0
+      --no-cache-prompt
+      --pooling mean
+      --log-disable
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 30s
+
+  # ── Reranker ─────────────────────────────────────── internal port 8080 ──
+  llama-rerank:
+    image: ghcr.io/ggml-org/llama.cpp@sha256:4cdd8b34a5ca217bfa84ab6a9f31ea79ee56e0837e36cdd2942cb6917e14388d
+    container_name: llama-rerank
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - video
+      - render
+    security_opt:
+      - seccomp=unconfined
+    volumes:
+      - ./models:/models:ro
+    command: >
+      -m /models/bge-reranker-v2-m3-Q8_0.gguf
+      --ctx-size 8192
+      --n-gpu-layers -1
+      --reranking
+      --log-disable
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 30s
+
+  # ── Override open-webui to use the container service URLs ─────────────────
+  # env_file (from base compose.yaml) provides all other vars; only URLs
+  # that differ from the mac-host defaults need to be overridden here.
+  open-webui:
+    environment:
+      OPENAI_API_BASE_URL: http://llama-llm:8080/v1
+      RAG_OPENAI_API_BASE_URL: http://llama-embed:8080/v1
+      # Full reranker endpoint path is required by Open WebUI.
+      RAG_EXTERNAL_RERANKER_URL: http://llama-rerank:8080/v1/rerank
+    depends_on:
+      llama-llm:
+        condition: service_healthy
+      llama-embed:
+        condition: service_healthy
+      llama-rerank:
+        condition: service_healthy

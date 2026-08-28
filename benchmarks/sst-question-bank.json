@@ -1,0 +1,443 @@
+{
+  "schema_version": 1,
+  "name": "SST Answerer verification questions",
+  "review_status": "validated_against_target_corpus",
+  "validated_at": "2026-08-18",
+  "corpus": {
+    "documentation_repository": "https://github.com/sstsimulator/sst-docs.git",
+    "documentation_commit": "9948ab5ba6b13a79f96f81fe87d2b75fa7fd18fe",
+    "documentation_root": "docs",
+    "sst_core_repository": "https://github.com/sstsimulator/sst-core.git",
+    "sst_core_commit": "431d0bc9ac595fabe7156951364c6ae3ca22c713",
+    "sst_elements_repository": "https://github.com/sstsimulator/sst-elements.git",
+    "sst_elements_commit": "a2c641a3caefb5585e4c8f6b326bb84036882cf4"
+  },
+  "tier_contract": {
+    "adequate_docs": "The documentation corpus directly supports the answer.",
+    "source_only": "Source code supports the answer, but the documentation is absent, incomplete, or contradicts the implemented behavior.",
+    "total_gap": "Neither the documentation nor indexed SST source provides a supported capability or answer."
+  },
+  "questions": [
+    {
+      "id": "component-authoring",
+      "persona": "new SST element developer",
+      "use_case": "Create and register a reusable component",
+      "question": "I want to write a new kind of component for my simulation. What are the SST-specific steps I need to follow?",
+      "expected_tier": "adequate_docs",
+      "reference_answer": "Define a C++ class derived from SST::Component, register it with SST_ELI_REGISTER_COMPONENT, implement the lifecycle behavior it needs, build it as an element library linked with SST Core, and register the resulting library path with sst-register.",
+      "key_terms": [
+        "SST::Component",
+        "SST_ELI_REGISTER_COMPONENT",
+        "sst-register"
+      ],
+      "difficulty": "medium",
+      "documentation_evidence": [
+        {
+          "path": "guides/dev/devtutorial.md",
+          "terms": [
+            "inherits from `SST::Component`",
+            "SST_ELI_REGISTER_COMPONENT"
+          ]
+        },
+        {
+          "path": "guides/concepts/elementtypes.mdx",
+          "terms": [
+            "Compile your element",
+            "sst-register"
+          ]
+        },
+        {
+          "path": "tools/commandLine/sst-register.md",
+          "terms": [
+            "register a new element library"
+          ]
+        }
+      ],
+      "source_evidence": [],
+      "notes": "Exercises the complete authoring path rather than only class inheritance."
+    },
+    {
+      "id": "checkpoint-wall-period",
+      "persona": "SST simulation user",
+      "use_case": "Create recurring checkpoints under a wall-clock allocation",
+      "question": "I want SST to checkpoint my simulation every hour. What command-line option should I use?",
+      "expected_tier": "adequate_docs",
+      "reference_answer": "Run SST with --checkpoint-wall-period=1h followed by the configuration file.",
+      "key_terms": [
+        "--checkpoint-wall-period",
+        "1h"
+      ],
+      "difficulty": "easy",
+      "documentation_evidence": [
+        {
+          "path": "guides/features/signal.md",
+          "terms": [
+            "--checkpoint-wall-period=1h"
+          ]
+        },
+        {
+          "path": "guides/features/checkpoint.mdx",
+          "terms": [
+            "--checkpoint-wall-period"
+          ]
+        }
+      ],
+      "source_evidence": [],
+      "notes": "A direct operational lookup with an exact documented example."
+    },
+    {
+      "id": "mpi-parallel-load",
+      "persona": "parallel simulation developer",
+      "use_case": "Construct a manually partitioned model across MPI ranks",
+      "question": "I am writing a configuration for multiple MPI ranks and want to construct only each rank's local portion of the graph. Which parallel-load modes and Python rank APIs should I use?",
+      "expected_tier": "adequate_docs",
+      "reference_answer": "Use --parallel-load=SINGLE when every rank executes the same configuration script or --parallel-load=MULTI when each rank receives a separate input. In Python, use sst.getMyMPIRank() and sst.getMPIRankCount() to select the local graph portion.",
+      "key_terms": [
+        "--parallel-load",
+        "SINGLE",
+        "MULTI",
+        "getMyMPIRank",
+        "getMPIRankCount"
+      ],
+      "difficulty": "hard",
+      "documentation_evidence": [
+        {
+          "path": "guides/runningSST.md",
+          "terms": [
+            "--parallel-load",
+            "SINGLE",
+            "MULTI"
+          ]
+        },
+        {
+          "path": "config/general/getMyMPIRank.md",
+          "terms": [
+            "sst.getMyMPIRank"
+          ]
+        },
+        {
+          "path": "config/general/getMPIRankCount.md",
+          "terms": [
+            "sst.getMPIRankCount"
+          ]
+        }
+      ],
+      "source_evidence": [],
+      "notes": "Requires synthesis across command-line and Python API documentation."
+    },
+    {
+      "id": "component-parameter-default",
+      "persona": "SST component author",
+      "use_case": "Implement and document an optional component parameter",
+      "question": "How do I give an SST component parameter a default value, and does the default in SST_ELI_DOCUMENT_PARAMS set it automatically?",
+      "expected_tier": "adequate_docs",
+      "reference_answer": "Set the runtime default in the component implementation code. The default_value field in SST_ELI_DOCUMENT_PARAMS is informational metadata for users and sst-info; it does not set the runtime default.",
+      "key_terms": [
+        "SST_ELI_DOCUMENT_PARAMS",
+        "informational",
+        "set in code"
+      ],
+      "difficulty": "medium",
+      "documentation_evidence": [
+        {
+          "path": "core/eli/document/sst_eli_document_params.md",
+          "terms": [
+            "informational only",
+            "defaults must be set in code"
+          ]
+        },
+        {
+          "path": "guides/files/basics_header_files.md",
+          "terms": [
+            "SST_ELI_DOCUMENT_PARAMS"
+          ]
+        }
+      ],
+      "source_evidence": [],
+      "notes": "Tests a subtle but explicitly documented distinction between ELI metadata and behavior."
+    },
+    {
+      "id": "init-untimed-exchange",
+      "persona": "SST component author",
+      "use_case": "Discover topology or negotiate parameters before simulated time starts",
+      "question": "My components need to exchange topology information before the run phase. In which lifecycle stage should they do it, and which Link APIs are valid there?",
+      "expected_tier": "adequate_docs",
+      "reference_answer": "Exchange the information in init(unsigned int phase). Send with Link::sendUntimedData() and poll with Link::recvUntimedData(); event handlers and clock handlers are not active and simulation time remains zero during init.",
+      "key_terms": [
+        "init",
+        "sendUntimedData",
+        "recvUntimedData"
+      ],
+      "difficulty": "medium",
+      "documentation_evidence": [
+        {
+          "path": "guides/concepts/lifecycle.mdx",
+          "terms": [
+            "init stage",
+            "sendUntimedData",
+            "recvUntimedData"
+          ]
+        },
+        {
+          "path": "core/link/sendUntimedData.md",
+          "terms": [
+            "during SST's [`init()`]"
+          ]
+        },
+        {
+          "path": "core/link/recvUntimedData.md",
+          "terms": [
+            "Event handlers are not active"
+          ]
+        }
+      ],
+      "source_evidence": [],
+      "notes": "Represents a common element-development error with lifecycle-sensitive APIs."
+    },
+    {
+      "id": "enable-component-statistics",
+      "persona": "SST model developer",
+      "use_case": "Declare, record, and enable a custom component statistic",
+      "question": "I declared queue_occupancy with SST_ELI_DOCUMENT_STATISTICS, but SST does not print it. What must the component implementation and Python configuration each do?",
+      "expected_tier": "adequate_docs",
+      "reference_answer": "SST_ELI_DOCUMENT_STATISTICS declares the statistic's metadata and enable level but does not record values. The component must obtain a typed handle with registerStatistic and add samples with addData. The Python configuration must enable that statistic explicitly, or enable all applicable statistics with a sufficient statistic load level. By default statistics are disabled.",
+      "key_terms": [
+        "SST_ELI_DOCUMENT_STATISTICS",
+        "registerStatistic",
+        "addData",
+        "enableStatistics",
+        "load level"
+      ],
+      "difficulty": "hard",
+      "documentation_evidence": [
+        {
+          "path": "core/eli/document/sst_eli_document_statistics.md",
+          "terms": [
+            "SST_ELI_DOCUMENT_STATISTICS",
+            "enable_level"
+          ]
+        },
+        {
+          "path": "core/component/stat/registerStatistic.md",
+          "terms": [
+            "registerStatistic",
+            "queue_occupancy"
+          ]
+        },
+        {
+          "path": "core/statistics/addData.md",
+          "terms": [
+            "addData",
+            "Adds data to a statistic"
+          ]
+        },
+        {
+          "path": "guides/configuration/pythonConfigGuide.md",
+          "terms": [
+            "By default, no statistics are generated",
+            "enableStatistics"
+          ]
+        },
+        {
+          "path": "config/stats/overview.md",
+          "terms": [
+            "Statistic load levels"
+          ]
+        }
+      ],
+      "source_evidence": [],
+      "notes": "Requires understanding both component-side registration and model-side enablement."
+    },
+    {
+      "id": "memhierarchy-interleaved-addressing",
+      "persona": "SST memory-system modeler",
+      "use_case": "Stripe a physical address range across MemHierarchy memory controllers",
+      "question": "I have three memHierarchy MemControllers covering 4 GiB and want to stripe addresses across them in 1 MiB chunks. How should I set the address-range and interleave parameters?",
+      "expected_tier": "adequate_docs",
+      "reference_answer": "Give all three controllers addr_range_end=4294967295. Use addr_range_start values 0, 1048576, and 2097152 respectively, set interleave_size=1MiB on each, and set interleave_step=3MiB on each. Each physical address at a shared hierarchy level must map to only one component.",
+      "key_terms": [
+        "addr_range_start",
+        "addr_range_end",
+        "interleave_size",
+        "interleave_step",
+        "3MiB"
+      ],
+      "difficulty": "medium",
+      "documentation_evidence": [
+        {
+          "path": "elements/memHierarchy/addressing.md",
+          "terms": [
+            "Example: Interleaved mapping",
+            "interleave_size",
+            "interleave_step",
+            "3MiB"
+          ]
+        }
+      ],
+      "source_evidence": [],
+      "notes": "Adds a concrete SST Elements user workflow so verification is not limited to SST Core APIs."
+    },
+    {
+      "id": "config-file-search-path",
+      "persona": "SST installation administrator",
+      "use_case": "Load an additional sstsimulator.conf from a non-default location",
+      "question": "How can I make SST read an additional SST configuration file from a non-default path without replacing the installed or per-user configuration?",
+      "expected_tier": "source_only",
+      "reference_answer": "Set SST_CONFIG_FILE_PATH to one or more additional configuration paths. SST reads the install configuration, then the user's ~/.sst/sstsimulator.conf, then paths from SST_CONFIG_FILE_PATH, followed by explicit override paths. Multiple environment paths use SST_CONFIG_FILE_PATH_SEPARATOR, which defaults to ':'.",
+      "key_terms": [
+        "SST_CONFIG_FILE_PATH",
+        "SST_CONFIG_FILE_PATH_SEPARATOR",
+        "~/.sst/sstsimulator.conf"
+      ],
+      "difficulty": "hard",
+      "documentation_evidence": [
+        {
+          "path": "tools/commandLine/sst-config.md",
+          "terms": [
+            "sstsimulator.conf"
+          ]
+        }
+      ],
+      "source_evidence": [
+        {
+          "repository": "sst-core",
+          "path": "src/sst/core/env/envquery.cc",
+          "terms": [
+            "SST_CONFIG_FILE_PATH",
+            "SST_CONFIG_FILE_PATH_SEPARATOR"
+          ]
+        }
+      ],
+      "documentation_absence_queries": [
+        "SST_CONFIG_FILE_PATH",
+        "SST_CONFIG_FILE_PATH_SEPARATOR"
+      ],
+      "notes": "The documentation describes the configuration file but not these environment variables or their precedence."
+    },
+    {
+      "id": "timing-json-run-time",
+      "persona": "SST performance analyst",
+      "use_case": "Extract machine-readable run-loop time without setup and teardown",
+      "question": "I need machine-readable timing for only SST's simulation run loop, excluding model construction and teardown. Which options and JSON path provide it?",
+      "expected_tier": "source_only",
+      "reference_answer": "Use --timing-info=2 with --profiling-output=FILE.json, then read regions.total.execute.run.duration. The options and JSON output format are documented, but the exact nested path follows SST Core's source-defined performance-region hierarchy.",
+      "key_terms": [
+        "--timing-info",
+        "--profiling-output",
+        "regions.total.execute.run.duration"
+      ],
+      "difficulty": "hard",
+      "documentation_evidence": [
+        {
+          "path": "guides/runningSST.md",
+          "terms": [
+            "--timing-info=[LEVEL]",
+            "--profiling-output=FILE"
+          ]
+        }
+      ],
+      "source_evidence": [
+        {
+          "repository": "sst-core",
+          "path": "src/sst/core/main.cc",
+          "terms": [
+            "beginRegion(\"execute\")",
+            "beginRegion(\"run\")"
+          ]
+        },
+        {
+          "repository": "sst-core",
+          "path": "src/sst/core/util/basicPerf.cc",
+          "terms": [
+            "createDataRecord(\"regions\"",
+            "addData(\"duration\""
+          ]
+        }
+      ],
+      "documentation_absence_queries": [
+        "regions.total.execute.run.duration"
+      ],
+      "notes": "Tracks SST Core's 2026 performance-reporting redesign; the exact nested JSON path is source-derived and therefore remains a documentation gap."
+    },
+    {
+      "id": "checkpoint-repartitioned-restart",
+      "persona": "HPC simulation operator",
+      "use_case": "Restart a checkpoint with a different rank/thread layout",
+      "question": "A regular SST 16 checkpoint was created with four MPI ranks and one thread per rank. Can I restart it with two ranks and two threads per rank, and what restrictions apply?",
+      "expected_tier": "adequate_docs",
+      "reference_answer": "Yes. SST 16 and the current repository can restart a regular checkpoint with new partitioning and parallelism, so 4x1 to 2x2 is supported. Restart repartitioning uses built-in partitioners. A parallel-loaded simulation is the exception: it can restart with the same degree of parallelism but cannot be arbitrarily repartitioned because it lacks a unified configuration graph.",
+      "key_terms": [
+        "new parallelization",
+        "built-in partitioners",
+        "parallel-load"
+      ],
+      "difficulty": "hard",
+      "documentation_evidence": [
+        {
+          "path": "guides/features/checkpoint.mdx",
+          "terms": [
+            "restarted with new partitioning and parallelism",
+            "Only built-in partitioners are supported",
+            "using the `--parallel-load` command line flag"
+          ]
+        }
+      ],
+      "source_evidence": [],
+      "notes": "Moved from source_only to adequate_docs after SST 16 documentation added explicit restart-repartitioning behavior and its parallel-load exception."
+    },
+    {
+      "id": "runtime-component-migration",
+      "persona": "large-scale parallel SST user",
+      "use_case": "Dynamically rebalance a running simulation",
+      "question": "How do I make SST migrate active components between MPI ranks during the run phase to correct load imbalance without restarting?",
+      "expected_tier": "total_gap",
+      "reference_answer": null,
+      "key_terms": [],
+      "difficulty": "hard",
+      "documentation_evidence": [],
+      "source_evidence": [],
+      "absence_queries": [
+        "dynamic component migration",
+        "migrate active components between MPI ranks",
+        "runtime repartitioning"
+      ],
+      "notes": "A plausible scalability request. SST documents construction-time partitioning and restart repartitioning, not live component migration."
+    },
+    {
+      "id": "deterministic-event-replay",
+      "persona": "SST component debugger",
+      "use_case": "Reproduce an intermittent simulation failure",
+      "question": "How can I record the global SST event schedule from one run and deterministically replay that trace in a later run?",
+      "expected_tier": "total_gap",
+      "reference_answer": null,
+      "key_terms": [],
+      "difficulty": "hard",
+      "documentation_evidence": [],
+      "source_evidence": [],
+      "absence_queries": [
+        "deterministic event replay",
+        "event trace replay",
+        "record and replay the event schedule"
+      ],
+      "notes": "SST Elements may internally replay blocked memory events; that is distinct from a Core-wide deterministic record/replay facility."
+    },
+    {
+      "id": "automatic-parameter-calibration",
+      "persona": "architecture model developer",
+      "use_case": "Fit a simulation model to measured hardware behavior",
+      "question": "How can SST automatically calibrate my element parameters against measured hardware traces and produce the best-fit parameter set?",
+      "expected_tier": "total_gap",
+      "reference_answer": null,
+      "key_terms": [],
+      "difficulty": "hard",
+      "documentation_evidence": [],
+      "source_evidence": [],
+      "absence_queries": [
+        "automatic parameter calibration",
+        "calibrate element parameters",
+        "best-fit parameter set"
+      ],
+      "notes": "A realistic modeling workflow, but not a capability supplied by SST Core or the indexed Elements."
+    }
+  ]
+}

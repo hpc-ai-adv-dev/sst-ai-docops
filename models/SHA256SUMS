@@ -1,0 +1,3 @@
+ee624d4be12433277bb9a340d3e5aabf5eb68fc788a7048ee99917edaa46494a  models/Qwen3-14B-Q4_K_M.gguf
+3e24342164b3d94991ba9692fdc0dd08e3fd7362e0aacc396a9a5c54a544c3b7  models/nomic-embed-text-v1.5.Q8_0.gguf
+a43c7c9b11a4c1517e5bf95151960e1621d1b72f7a493364b01e386cf1aaa1d3  models/bge-reranker-v2-m3-Q8_0.gguf

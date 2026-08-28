@@ -1,0 +1,23 @@
+FROM ghcr.io/open-webui/open-webui@sha256:b8095f79a6a8ffad8f830bdacc9b5b0aef805689b31bca0b065cc2424d3cfaeb
+
+# Patch two reviewed Open WebUI v0.8.12 retrieval defects: unpaginated Chroma
+# reads for hybrid BM25, and duplicate raw/enriched chunks after multi-query
+# retrieval.
+COPY ./patch-open-webui.py /tmp/patch-open-webui.py
+RUN python /tmp/patch-open-webui.py && rm /tmp/patch-open-webui.py
+
+# Store seed data at a STAGING path so a runtime volume on /app/backend/data
+# does not shadow it.  The entrypoint copies it to the live dir on first run.
+COPY ./config-seed /app/backend/data-seed
+
+# Entrypoint wrapper: seeds /app/backend/data on first run, then hands off
+# to the original CMD ("bash start.sh").
+COPY ./entrypoint.sh /app/entrypoint.sh
+COPY ./sync-seed-config.py /app/sync-seed-config.py
+COPY ./filters/confidence-gate.py /app/confidence-gate.py
+RUN chmod +x /app/entrypoint.sh /app/sync-seed-config.py
+
+# Keep the same user the base image uses (root / 0:0) – changing it to 1000
+# breaks writes to app directories that are root-owned.
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["bash", "start.sh"]

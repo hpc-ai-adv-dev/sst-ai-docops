@@ -1,0 +1,31 @@
+openwebui:
+  url: "http://localhost:3000"
+  email: "admin@localhost"
+  password: "admin"
+  timeout: 30
+
+collection:
+  lookback_days: 7                    # weekly window; use collect --all for history
+
+embedding:
+  base_url: "http://localhost:8001/v1"    # for clustering (nomic-embed-text)
+  model: "nomic-embed-text-v1.5.Q8_0.gguf"
+  query_prefix: "search_query: "          # nomic requires task prefixes
+
+github:
+  token: ""                               # or GITHUB_TOKEN env var
+  base_url: "https://api.github.com"       # replace for GitHub Enterprise
+  repo: "owner/repo"                      # where to post issues
+  labels: ["doc-gap", "sst"]
+
+paths:
+  events_dir: "data/events"
+  snapshots_dir: "data/snapshots"
+  embeddings_dir: "data/embeddings"
+  metrics_md: "data/output/METRICS.md"
+  metrics_csv: "data/output/metrics-history.csv"
+  demo_event_log: "../runtime-data/gap_log.jsonl"
+
+clustering:
+  distance_threshold: 0.3                 # cosine distance cut
+  top_n_clusters: 20                      # max gaps in weekly report

@@ -1,0 +1,16 @@
+.env
+/runtime-data*/
+models/*
+!models/README.md
+!models/SHA256SUMS
+llama.cpp
+# Temporary bind-mount working directory used by seed/start-seed.sh.
+# Cleaned up automatically on successful capture; may persist after Ctrl-C.
+seed/.seed-work/
+seed/.sst-refresh-work/
+seed/.config-seed-backup/
+# The downloadable release pulls a pre-seeded OCI image. Generated Open WebUI
+# databases, uploads, vectors, and model caches do not belong in Git.
+seed/config-seed/
+__pycache__/
+*.py[cod]

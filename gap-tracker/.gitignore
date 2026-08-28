@@ -1,0 +1,14 @@
+# Ignore runtime data, keep structure
+data/snapshots/
+data/embeddings/
+data/output/
+data/events/*.jsonl
+!data/events/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.venv/

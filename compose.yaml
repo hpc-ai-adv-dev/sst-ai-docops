@@ -1,0 +1,32 @@
+services:
+
+  open-webui:
+    image: ${DEMO_IMAGE:-open-webui-rag-demo:v2}
+    container_name: open-webui
+    ports:
+      # Local-only by default because this demo intentionally disables auth.
+      # Set WEBUI_HOST=0.0.0.0 only behind an authenticated reverse proxy.
+      - "${WEBUI_HOST:-127.0.0.1}:3000:8080"
+    env_file:
+      # All Open WebUI env vars are centralised here.
+      # URL vars use mac/host defaults; overlays (compose.nvidia.yaml /
+      # compose.amd.yaml) override them with container-DNS names.
+      - ./env/webui-common.env
+    environment:
+      # Multiline prompts are loaded from env/*.txt by start.sh and exported
+      # into the shell before compose runs.
+      - RAG_TEMPLATE
+      - QUERY_GENERATION_PROMPT_TEMPLATE
+    volumes:
+      # runtime-data persists chats, feedback and uploads.
+      # Collect with:  docker cp open-webui:/app/backend/data ./collected-data
+      #           or:  podman cp open-webui:/app/backend/data ./collected-data
+      # Override RUNTIME_DATA_DIR for an isolated clean-start test without
+      # deleting an existing demo's chats or Gap Tracker event log.
+      - ${RUNTIME_DATA_DIR:-./runtime-data}:/app/backend/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 30s

@@ -1,0 +1,13 @@
+.config-seed-backup/
+.seed-work/
+.sst-refresh-work/
+__pycache__/
+*.py[cod]
+
+# Open WebUI uses the external GGUF embedding service in this demo. Historical
+# Hugging Face embedding models and Whisper assets are not runtime inputs.
+config-seed/cache/embedding/
+config-seed/cache/whisper/
+config-seed/cache/audio/
+config-seed/cache/functions/
+config-seed/cache/image/

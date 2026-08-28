@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools==80.9.0", "wheel==0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sst-gap-tracker"
+version = "0.1.0"
+description = "Collect, cluster, and report documentation gaps from the SST Answerer."
+requires-python = ">=3.11"
+dependencies = [
+    "requests==2.34.2",
+    "scikit-learn==1.9.0",
+    "PyGithub==2.10.0",
+    "pyyaml==6.0.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+]
+
+[project.scripts]
+sst-gap-tracker = "ai_docops_analytics.__main__:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

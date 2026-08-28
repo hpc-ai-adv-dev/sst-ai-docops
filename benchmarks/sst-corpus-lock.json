@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "index_format_version": 2,
+  "corpus_sha256": "22bab0ab668533051a9942bb9a816b3b077b295f8100ad06928bf42f55a82ac7",
+  "repositories": {
+    "sst-core": {
+      "repository": "https://github.com/sstsimulator/sst-core.git",
+      "commit": "431d0bc9ac595fabe7156951364c6ae3ca22c713",
+      "branch": "master"
+    },
+    "sst-docs": {
+      "repository": "https://github.com/sstsimulator/sst-docs.git",
+      "commit": "9948ab5ba6b13a79f96f81fe87d2b75fa7fd18fe",
+      "branch": "master"
+    },
+    "sst-elements": {
+      "repository": "https://github.com/sstsimulator/sst-elements.git",
+      "commit": "a2c641a3caefb5585e4c8f6b326bb84036882cf4",
+      "branch": "master"
+    }
+  },
+  "collections": {
+    "documentation": {
+      "name": "SST Documentation",
+      "file_count": 533,
+      "total_bytes": 1201300
+    },
+    "source": {
+      "name": "SST Source Code",
+      "file_count": 2651,
+      "total_bytes": 18247223
+    }
+  }
+}
