@@ -17,6 +17,12 @@ COPY ./sync-seed-config.py /app/sync-seed-config.py
 COPY ./filters/confidence-gate.py /app/confidence-gate.py
 RUN chmod +x /app/entrypoint.sh /app/sync-seed-config.py
 
+LABEL org.opencontainers.image.title="AI DocOps for SST" \
+      org.opencontainers.image.description="Local-first SST Answerer and documentation Gap Tracker demo" \
+      org.opencontainers.image.source="https://github.com/hpc-ai-adv-dev/sst-ai-docops" \
+      org.opencontainers.image.url="https://github.com/hpc-ai-adv-dev/sst-ai-docops" \
+      org.opencontainers.image.licenses="Apache-2.0"
+
 # Keep the same user the base image uses (root / 0:0) – changing it to 1000
 # breaks writes to app directories that are root-owned.
 ENTRYPOINT ["/app/entrypoint.sh"]
